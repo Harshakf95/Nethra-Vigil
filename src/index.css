@@ -1,0 +1,118 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NETHRA VIGIL Cybersecurity Dashboard Design System */
+
+@layer base {
+  :root {
+    --background: 216 27% 7%;
+    --foreground: 213 31% 91%;
+
+    --card: 217 33% 11%;
+    --card-foreground: 213 31% 91%;
+
+    --popover: 217 33% 11%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 213 31% 91%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 217 12% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 213 31% 91%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 213 31% 91%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 216 27% 7%;
+    --sidebar-foreground: 213 31% 91%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 213 31% 91%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 217 91% 60%;
+
+    /* Custom cybersecurity colors */
+    --threat-critical: 0 84% 60%;
+    --threat-high: 25 95% 53%;
+    --threat-medium: 45 93% 47%;
+    --threat-low: 142 76% 36%;
+    --system-success: 142 76% 36%;
+    --network-in: 142 76% 36%;
+    --network-out: 25 95% 53%;
+  }
+
+  .dark {
+    --background: 216 27% 7%;
+    --foreground: 213 31% 91%;
+    --card: 217 33% 11%;
+    --card-foreground: 213 31% 91%;
+    --popover: 217 33% 11%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 217 12% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .glow-effect {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+  }
+
+  .threat-glow-critical {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+  }
+
+  .threat-glow-high {
+    box-shadow: 0 0 15px rgba(251, 146, 60, 0.2);
+  }
+
+  .threat-glow-medium {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+  }
+
+  .threat-glow-low {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+  }
+
+  .cyber-grid {
+    background-image: 
+      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}

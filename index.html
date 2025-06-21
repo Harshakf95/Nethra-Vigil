@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>Nethra Vigil - Cybersecurity Dashboard</title>
+    <meta name="description" content="Nethra Vigil - Advanced Cybersecurity Monitoring Dashboard" />
+    <meta name="author" content="Nethra Vigil Team" />
+    
+    <!-- Standard Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <!-- SVG Favicon (for modern browsers) -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/apple-touch-icon-167x167.png">
+    <!-- Android/Chrome -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Theme color for supported browsers (Chrome, Edge, Safari) -->
+    <!-- Note: Firefox and Opera don't support theme-color meta tag -->
+    <meta name="theme-color" content="#1E40AF" id="theme-color" media="(prefers-color-scheme: light)">
+    <!-- Dark mode theme color -->
+    <meta name="theme-color" content="#1E3A8A" id="theme-color-dark" media="(prefers-color-scheme: dark)">
+    
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#1E40AF">
+    <meta name="msapplication-TileColor" content="#1E40AF">
+    
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sentinel Sight">
+    
+    <!-- Safari Pinned Tab -->
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#1E40AF">
+    
+    <!-- Theme color for Firefox Mobile (via manifest) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Microsoft-specific -->
+    <meta name="msapplication-TileColor" content="#1E40AF">
+    <meta name="msapplication-TileColor" content="#1E40AF">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Additional Meta Tags -->
+    <meta name="application-name" content="Nethra Vigil">
+    <meta name="apple-mobile-web-app-title" content="Nethra Vigil">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Theme Colors -->
+    <script>
+      // Set theme color dynamically based on browser support and color scheme
+      (function() {
+        // Define colors
+        const colors = {
+          light: '#1E40AF',
+          dark: '#1E3A8A'
+        };
+        
+        // Function to set theme color
+        function setThemeColor(isDark) {
+          const color = isDark ? colors.dark : colors.light;
+          
+          // For browsers that support theme-color
+          const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+          if (themeColorMeta) {
+            themeColorMeta.content = color;
+          } else {
+            // Create theme-color meta tag if it doesn't exist
+            const meta = document.createElement('meta');
+            meta.name = 'theme-color';
+            meta.content = color;
+            document.head.appendChild(meta);
+          }
+          
+          // Set CSS variable for use in styles
+          document.documentElement.style.setProperty('--theme-color', color);
+        }
+        
+        // Initial setup
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setThemeColor(isDark);
+        
+        // Listen for color scheme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+          setThemeColor(e.matches);
+        });
+      })();
+    </script>
+    
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Nethra Vigil">
+    
+    <!-- Windows / Microsoft -->
+    <meta name="msapplication-navbutton-color" content="#1E40AF">
+    <meta name="msapplication-TileColor" content="#1E40AF">
+    
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nethravigil.com/" />
+    <meta property="og:title" content="Nethra Vigil - Cybersecurity Dashboard" />
+    <meta property="og:description" content="Advanced cybersecurity monitoring and threat detection platform" />
+    <meta property="og:image" content="https://nethravigil.com/android-chrome-512x512.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://nethravigil.com/" />
+    <meta name="twitter:title" content="Nethra Vigil" />
+    <meta name="twitter:description" content="Advanced cybersecurity monitoring and threat detection platform" />
+    <meta name="twitter:image" content="https://nethravigil.com/android-chrome-512x512.png" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

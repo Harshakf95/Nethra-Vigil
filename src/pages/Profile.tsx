@@ -1,0 +1,489 @@
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
+import { useState, useRef, ChangeEvent, FormEvent } from "react";
+import { api } from "@/lib/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface User {
+  email: string;
+  name: string;
+  photoURL?: string;
+  uid?: string;
+  displayName?: string;
+}
+
+interface UpdateProfileData {
+  displayName?: string;
+  email?: string;
+  photoURL?: string | null;
+}
+
+interface ApiResponse<T = unknown> {
+  data?: T;
+  error?: string;
+  success: boolean;
+}
+
+const Profile = () => {
+  const { user: authUser, logout } = useAuth();
+  const user = authUser as User | null;
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(user?.photoURL || null);
+  const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Mock API functions - replace with actual API calls
+  const updateProfile = async (data: UpdateProfileData): Promise<ApiResponse> => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { success: true };
+  };
+
+  const updatePassword = async (newPassword: string): Promise<ApiResponse> => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { success: true };
+  };
+
+  // Profile update mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('User not authenticated');
+      
+      let photoURL = user.photoURL || null;
+      
+      // Upload new profile picture if selected
+      if (selectedFile) {
+        const response = await api.uploadFile(
+          selectedFile, 
+          `profile-pictures/${user.uid || 'temp'}`
+        );
+        
+        if (!response.success || !response.data) {
+          throw new Error(response.error || 'Failed to upload profile picture');
+        }
+        
+        photoURL = response.data.url;
+      }
+      
+      // Update profile information
+      const updates: UpdateProfileData = {};
+      
+      if (formData.name !== user.name) {
+        updates.displayName = formData.name;
+      }
+      
+      if (formData.email !== user.email) {
+        updates.email = formData.email;
+      }
+      
+      if (photoURL) {
+        updates.photoURL = photoURL;
+      }
+      
+      if (Object.keys(updates).length > 0) {
+        await updateProfile(updates);
+      }
+      
+      // Update password if provided
+      if (formData.newPassword) {
+        await updatePassword(formData.newPassword);
+      }
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+      setIsEditing(false);
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }));
+      setSelectedFile(null);
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Delete profile picture mutation
+  const deleteProfilePictureMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.photoURL) return;
+      
+      // Delete the file from storage
+      const response = await api.deleteFile(user.photoURL);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to delete profile picture');
+      }
+      
+      // Update user's profile to remove photoURL
+      await updateProfile({ photoURL: null });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      toast({
+        title: "Profile picture removed",
+        description: "Your profile picture has been removed.",
+      });
+      setPreviewUrl(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error removing profile picture",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const isLoading = updateProfileMutation.isPending || deleteProfilePictureMutation.isPending;
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Validate file size (2MB max)
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 2MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file (JPG, PNG, GIF).",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setSelectedFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAvatarClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isEditing) {
+      setIsEditing(true);
+      return;
+    }
+    
+    // Validate form
+    if (formData.newPassword && formData.newPassword !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    updateProfileMutation.mutate();
+  };
+  
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData({
+      name: user?.name || '',
+      email: user?.email || '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setSelectedFile(null);
+    setPreviewUrl(user?.photoURL || null);
+  };
+  
+  const handleRemovePicture = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user?.photoURL && !previewUrl) return;
+    
+    try {
+      if (user?.photoURL) {
+        await deleteProfilePictureMutation.mutateAsync();
+      } else {
+        setPreviewUrl(null);
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    } catch (error) {
+      console.error('Failed to remove profile picture:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+  };
+  
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+            <p className="text-muted-foreground">
+              Manage your account settings and preferences
+            </p>
+          </div>
+          <Button variant="outline" onClick={handleLogout}>
+            Sign out
+          </Button>
+        </div>
+
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Profile Information</CardTitle>
+            <CardDescription>
+              Update your account's profile information and email address.
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-6">
+              <div className="flex items-center gap-6">
+                <div className="flex-shrink-0 relative group">
+                  <Avatar 
+                    className={`h-24 w-24 ${isEditing ? 'cursor-pointer hover:opacity-90' : ''} transition-opacity`}
+                    onClick={handleAvatarClick}
+                  >
+                    {previewUrl ? (
+                      <img 
+                        src={previewUrl} 
+                        alt="Profile preview" 
+                        className="h-full w-full object-cover"
+                      />
+                    ) : user?.photoURL ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt="Profile" 
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <AvatarFallback className="text-2xl">
+                        {user?.name ? getInitials(user.name) : 'U'}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  
+                  {isEditing && (
+                    <>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-background/90 backdrop-blur-sm hover:bg-background/80 transition-colors"
+                        onClick={handleAvatarClick}
+                      >
+                        Change
+                      </Button>
+                      
+                      {(previewUrl || user?.photoURL) && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute -top-2 -right-2 rounded-full w-6 h-6 p-0 bg-destructive/90 hover:bg-destructive text-white"
+                          onClick={handleRemovePicture}
+                        >
+                          Ã—
+                        </Button>
+                      )}
+                      
+                      <div className="relative">
+                        <label 
+                          htmlFor="profile-image-upload"
+                          className="sr-only"
+                        >
+                          Upload profile image
+                        </label>
+                        <input
+                          id="profile-image-upload"
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept="image/*"
+                          className="hidden"
+                          aria-label="Upload profile image"
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                <div className="flex-1">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.name || 'User'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {user?.email || 'No email provided'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    disabled={!isEditing || isLoading}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    disabled={!isEditing || isLoading}
+                  />
+                </div>
+                
+                {isEditing && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword">Current Password</Label>
+                      <Input
+                        id="currentPassword"
+                        name="currentPassword"
+                        type="password"
+                        value={formData.currentPassword}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                        placeholder="Leave blank to keep current"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">New Password</Label>
+                      <Input
+                        id="newPassword"
+                        name="newPassword"
+                        type="password"
+                        value={formData.newPassword}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                        placeholder="Leave blank to keep current"
+                      />
+                    </div>
+                    
+                    {formData.newPassword && (
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                        <Input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type="password"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </CardContent>
+            
+            <CardFooter className="flex justify-end gap-2">
+              {isEditing ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isLoading}>
+                    {isLoading ? 'Saving...' : 'Save changes'}
+                  </Button>
+                </>
+              ) : (
+                <Button type="button" onClick={() => setIsEditing(true)}>
+                  Edit Profile
+                </Button>
+              )}
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Profile;
