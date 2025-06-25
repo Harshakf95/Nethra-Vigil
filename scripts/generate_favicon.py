@@ -38,8 +38,8 @@ def generate_favicon():
     # Generate manifest file
     with open('public/site.webmanifest', 'w') as f:
         f.write("""{
-  "name": "Nethra Vigil",
-  "short_name": "Nethra",
+  "name": "Karthikeyan Vigil",
+  "short_name": "Karthikeyan",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

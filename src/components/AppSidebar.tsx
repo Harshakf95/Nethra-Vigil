@@ -68,8 +68,7 @@ export function AppSidebar() {
             <Eye className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">NETHRA</h1>
-            <p className="text-xs text-primary font-medium">VIGIL</p>
+            <h1 className="text-lg font-bold text-foreground">KARTHIKEYAN VIGIL</h1>
           </div>
         </div>
       </SidebarHeader>
@@ -77,7 +76,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Nethra Vigil
+            Karthikeyan Vigil
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

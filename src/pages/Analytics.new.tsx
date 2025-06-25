@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BarChart3, TrendingUp, TrendingDown, Activity, AlertCircle } from "lucide-react";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { threatApi, type ThreatData, type HourlyData, type RiskCategory, type PerformanceMetrics } from "@/lib/threatApi";
@@ -11,7 +11,7 @@ const chartConfig = {
   total: { label: "Total Threats", color: "#ef4444" },
   web: { label: "Web Threats", color: "#3b82f6" },
   network: { label: "Network Threats", color: "#10b981" },
-} as const;
+};
 
 export default function Analytics() {
   const [threatTrendData, setThreatTrendData] = useState<ThreatData[]>([]);
@@ -98,7 +98,6 @@ export default function Analytics() {
     );
   }
 
-
   // Render error state
   if (error) {
     return (
@@ -178,7 +177,7 @@ export default function Analytics() {
                   <AreaChart data={threatTrendData}>
                     <XAxis 
                       dataKey="date" 
-                      tickFormatter={(value: string) => {
+                      tickFormatter={(value) => {
                         const date = new Date(value);
                         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                       }}
@@ -196,7 +195,7 @@ export default function Analytics() {
                                   day: 'numeric' 
                                 })}
                               </p>
-                              {payload.map((entry: any, i: number) => (
+                              {payload.map((entry, i) => (
                                 <div key={`item-${i}`} className="flex items-center justify-between gap-2">
                                   <div className="flex items-center gap-1">
                                     <div 
@@ -257,7 +256,7 @@ export default function Analytics() {
                       outerRadius={80}
                       paddingAngle={2}
                       dataKey="value"
-                      label={({ name, percent }: { name: string, percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       labelLine={false}
                     >
                       {riskCategories.map((entry, index) => (
@@ -267,7 +266,7 @@ export default function Analytics() {
                     <ChartTooltip 
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
-                          const data = payload[0].payload as RiskCategory;
+                          const data = payload[0].payload;
                           return (
                             <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
                               <p className="font-medium">{data.name} Risk</p>
@@ -298,17 +297,17 @@ export default function Analytics() {
                 <BarChart data={hourlyData}>
                   <XAxis 
                     dataKey="hour" 
-                    tickFormatter={(value: string) => `${value}:00`}
+                    tickFormatter={(value) => `${value}:00`}
                     tick={{ fill: '#94a3b8' }}
                   />
                   <YAxis tick={{ fill: '#94a3b8' }} />
                   <ChartTooltip 
-                    content={({ active, payload }) => {
+                    content={({ active, payload, label }) => {
                       if (active && payload && payload.length) {
                         return (
                           <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
-                            <p className="font-medium">{payload[0].payload.hour}:00 - {parseInt(payload[0].payload.hour) + 1}:00</p>
-                            {payload.map((entry: any, i: number) => (
+                            <p className="font-medium">{label}:00 - {parseInt(label) + 4}:00</p>
+                            {payload.map((entry, i) => (
                               <div key={`item-${i}`} className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-1">
                                   <div 
@@ -330,8 +329,8 @@ export default function Analytics() {
                       return null;
                     }}
                   />
-                  <Bar dataKey="incidents" name="Incidents" fill="#ef4444" radius={[4, 4, 0, 0]}>
-                    {hourlyData.map((_, index) => (
+                  <Bar dataKey="incidents" name="Incidents" fill="#ef4444" radius={[4, 4, 0, 0]}> 
+                    {hourlyData.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
                         fill="#ef4444" 
@@ -340,7 +339,7 @@ export default function Analytics() {
                     ))}
                   </Bar>
                   <Bar dataKey="resolved" name="Resolved" fill="#10b981" radius={[4, 4, 0, 0]}>
-                    {hourlyData.map((_, index) => (
+                    {hourlyData.map((entry, index) => (
                       <Cell 
                         key={`cell-resolved-${index}`} 
                         fill="#10b981"

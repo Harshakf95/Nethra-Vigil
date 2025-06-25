@@ -1,6 +1,6 @@
-# Nethra Sentinel - Backend Server
+# Karthikeyan Sentinel - Backend Server
 
-This is the backend server for the Nethra Sentinel application, built with Node.js, Express, and MongoDB.
+This is the backend server for the Karthikeyan Sentinel application, built with Node.js, Express, and MongoDB.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This is the backend server for the Nethra Sentinel application, built with Node.
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd nethra-sentinel-sight/server
+   cd karthikeyan-sentinel-sight/server
    ```
 
 2. **Install dependencies**
@@ -26,7 +26,7 @@ This is the backend server for the Nethra Sentinel application, built with Node.
    ```env
    NODE_ENV=development
    PORT=5000
-   MONGO_URI=mongodb://localhost:27017/nethra-sentinel
+   MONGO_URI=mongodb://localhost:27017/karthikeyan-sentinel
    JWT_SECRET=your_jwt_secret_key_here
    JWT_EXPIRE=30d
    ```

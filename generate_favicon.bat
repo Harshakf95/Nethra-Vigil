@@ -1,5 +1,5 @@
 @echo off
-echo Setting up Nethra Vigil Favicon Generator
+echo Setting up Karthikeyan Vigil Favicon Generator
 echo =====================================
 
 REM Check if Python is installed

@@ -1,7 +1,7 @@
 {
-  "name": "nethra-sentinel-server",
+  "name": "karthikeyan-sentinel-server",
   "version": "1.0.0",
-  "description": "Backend server for Nethra Sentinel application",
+  "description": "Backend server for Karthikeyan Sentinel application",
   "main": "dist/index.js",
   "type": "commonjs",
   "scripts": {
